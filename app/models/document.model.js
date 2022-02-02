@@ -6,7 +6,6 @@ module.exports = mongoose => {
           id: String,
           name: String,
           abstract: String,
-          path: String,
           category: String
         },
         { timestamps: true }
