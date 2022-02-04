@@ -56,7 +56,6 @@ exports.create = (req, res) => {
 };
 
 // Delete a Document with the specified id in the request
-//exports.delete = (req, res) => {
 exports.delete = (gfs, mongoose) => {
     return function (req, res, next) {
         const id = req.params.id;
@@ -77,68 +76,33 @@ exports.delete = (gfs, mongoose) => {
                     });
                 } else {
 
-                    console.log(req.params.id)
-
-                    // once document removed, remove associated files as well
-                    // MIRAR DE FER-HO MILLOR!!!!
+                    // once document removed, remove associated files (pdf + png) as well
                     gfs
                         .find({
-                            metadata: { id: req.params.id, type: 'pdf' }
+                            'metadata.id': req.params.id, 'metadata.type': { $regex: new RegExp(/^(pdf|png)$/) }
                         })
                         .toArray((err, files) => {
 
-                            console.log(files)
-
                             if (!files || files.length === 0) {
                                 return res.status(404).json({
-                                    err: "no files exist"
+                                    err: "No related files found"
                                 });
                             }
 
-                            const file_id = files[0]._id
-                            console.log(files[0]._id);
-
-                            gfs.delete(new mongoose.Types.ObjectId(file_id), (err, data) => {
-                                if (err) return res.status(404).json({ err: err.message });
-
-                                gfs
-                                    .find({
-                                        metadata: { id: req.params.id, type: 'png' }
-                                    })
-                                    .toArray((err, files) => {
-
-                                        console.log(files)
-
-                                        if (!files || files.length === 0) {
-                                            return res.status(404).json({
-                                                err: "no files exist"
-                                            });
-                                        }
-
-                                        const file_id = files[0]._id
-                                        console.log(files[0]._id);
-
-                                        gfs.delete(new mongoose.Types.ObjectId(file_id), (err, data) => {
-                                            if (err) return res.status(404).json({ err: err.message });
-                                            res.send({
-                                                message: "Document and related files were deleted successfully!"
-                                            });
-                                        });
-
-                                    });
-
+                            const idsArray = files.map(a => a._id);
+                            // it seems that gfs hasn't deleteMany method, so remove files one by one
+                            idsArray.forEach(item => {
+                                gfs.delete(new mongoose.Types.ObjectId(item), (err, data) => {
+                                    if (err) return res.status(404).json({ err: err.message });
+                                })
                             });
 
-                        });
+                            res.send({
+                                message: "Document and related files were deleted successfully!"
+                            });
 
+                        })
 
-
-
-                    // **************
-
-                    /*res.send({
-                        message: "Document was deleted successfully!"
-                    });*/
                 }
             })
             .catch(err => {
