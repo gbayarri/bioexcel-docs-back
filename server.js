@@ -50,32 +50,11 @@ db.mongoose.connection.on('connected', () => {
         res.json({ message: "Welcome to bioexcel-docs REST." });
     });
 
-    // **********************
-    app.post("/files/del/:id", (req, res) => {
-        console.log(req.params.id)
-        gfs.delete(new db.mongoose.Types.ObjectId(req.params.id), (err, data) => {
-        //gfs.delete({ filename: req.params.id }, (err, data) => {
-
-            console.log(err, data)
-
-            if (err) return res.status(404).json({ err: err.message });
-            res.redirect("/");
-        });
-    });
-    // **********************
-    /*gfs.remove({ _id: req.params.id, root: "uploads" }, (err, gridStore) => {
-            if (err) {
-                return res.status(404).json({ err });
-            }
-            return;
-
-        });*/
-
     // call to routes for documents
     require("./app/routes/documents.routes")(app, gfs, db.mongoose);
 
     // call to routes for files
-    require("./app/routes/files.routes")(app, upload, gfs);
+    require("./app/routes/files.routes")(app, upload, gfs, db.mongoose);
 
     // set port, listen for requests
     const PORT = process.env.PORT;
