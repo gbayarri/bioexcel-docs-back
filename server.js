@@ -10,7 +10,7 @@ const { GridFsStorage } = require("multer-gridfs-storage");
 const app = express();
 app.use(express.json());
 
-// define allowed origin (?)
+// define allowed origin
 var corsOptions = {
     origin: process.env.ORIGIN
 };
