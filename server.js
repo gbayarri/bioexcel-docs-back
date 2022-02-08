@@ -5,7 +5,10 @@ const dotenv = require('dotenv').config();
 const crypto = require("crypto");
 const path = require("path");
 const multer = require("multer");
+const os = require('os');
 const { GridFsStorage } = require("multer-gridfs-storage");
+
+console.log('If in development mode, open VPN!')
 
 const app = express();
 app.use(express.json());
@@ -58,8 +61,9 @@ db.mongoose.connection.on('connected', () => {
 
     // set port, listen for requests
     const PORT = process.env.PORT;
-    app.listen(PORT, () => {
-        console.log(`Server is running on port ${PORT}. If in development mode, open VPN!`);
+    const HOST = process.env.HOST;
+    app.listen(PORT, HOST, () => {
+        console.log(`Server is running at http://${HOST}:${PORT}/.`);
     });
 })
 
