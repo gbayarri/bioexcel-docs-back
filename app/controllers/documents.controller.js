@@ -1,5 +1,4 @@
 const db = require("../models");
-const common = require("./common.functions.js");
 const Document = db.documents;
 
 // Create and Save a new Document or update if exists
